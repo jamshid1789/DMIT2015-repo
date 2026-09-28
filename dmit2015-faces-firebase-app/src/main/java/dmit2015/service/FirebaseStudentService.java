@@ -1,5 +1,6 @@
 package dmit2015.service;
 
+import dmit2015.model.Student;
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -16,14 +17,15 @@ import java.nio.charset.StandardCharsets;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 /**
- * This class implements the FireBaseStudentServiceService using the HttpClient library to send Http Request to the Firebase Realtime Database REST API.
+ * This class implements the StudentService using the HttpClient library to send Http Request to the Firebase Realtime Database REST API.
  */
 
-@Named("firebaseHttpClientFireBaseStudentServiceService")
+@Named("firebaseHttpClientStudentService")
 @ApplicationScoped
-public class FirebaseStudentServiceService implements StudentService{
+public class FirebaseStudentService implements StudentService {
     /**
      * The base URL to the Firebase Realtime Database that is defined in `src/main/resources/META-INF/microprofile-config.properties` file.
      */
@@ -53,22 +55,22 @@ public class FirebaseStudentServiceService implements StudentService{
     }
 
     /**
-     * Pushing currentFireBaseStudentService data to Firebase Realtime Database using the REST API
+     * Pushing currentStudent data to Firebase Realtime Database using the REST API
      *
      * @link <a href="https://firebase.google.com/docs/reference/rest/database">Firebase Realtime Database REST API</a>
      */
     @Override
-    public FireBaseStudentService createFireBaseStudentService(FireBaseStudentService fireBaseStudentService) {
+    public Student createStudent(Student student) {
         // Explicitly set the id value for the object to be created.
-        fireBaseStudentService.setId(UUID.randomUUID().toString());
+        student.setId(UUID.randomUUID().toString());
 
         // Build the url path to object to create
         jsonAllDataPath = String.format("%s/%s/%s.json",
                 firebaseRtdbBaseUrl,
-                FireBaseStudentService.class.getSimpleName(),
-                fireBaseStudentService.getId());
+                Student.class.getSimpleName(),
+                student.getId());
         // Convert the Java object to a JSON string using JSONB
-        String requestBodyJson = jsonb.toJson(fireBaseStudentService);
+        String requestBodyJson = jsonb.toJson(student);
 
         // Create a Http Request for sending a Http POST request to push new data
         var httpRequest = HttpRequest.newBuilder()
@@ -83,8 +85,8 @@ public class FirebaseStudentServiceService implements StudentService{
             if (httpResponse.statusCode() == 200) {
                 // Get the body of the Http Response
                 var responseBodyJson = httpResponse.body();
-                // Convert the JSON String to a FireBaseStudentService
-                fireBaseStudentService = jsonb.fromJson(responseBodyJson, FireBaseStudentService.class);
+                // Convert the JSON String to a Student
+                student = jsonb.fromJson(responseBodyJson, Student.class);
             } else {
                 String errorMessage = String.format("Create was not successful with status code: %s", httpResponse.statusCode());
                 throw new RuntimeException(errorMessage);
@@ -92,14 +94,14 @@ public class FirebaseStudentServiceService implements StudentService{
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-        return fireBaseStudentService;
+        return student;
     }
 
     @Override
-    public Optional<FireBaseStudentService> getFireBaseStudentServiceById(String id) {
+    public Optional<Student> getStudentById(String id) {
         // Build the url path to object to update
         String jsonSingleDataPath = String.format("%s/%s/%s.json",
-                firebaseRtdbBaseUrl, FireBaseStudentService.class.getSimpleName(), id);
+                firebaseRtdbBaseUrl, Student.class.getSimpleName(), id);
         try {
             // Create an GET Http Request to fetch all data
             var httpRequest = HttpRequest.newBuilder()
@@ -114,12 +116,12 @@ public class FirebaseStudentServiceService implements StudentService{
                 // Get the body of the Http Response
                 var responseBodyJson = httpResponse.body();
                 if (!responseBodyJson.equals("null")) {
-                    // Convert the responseBodyJson to an LinkedHashMap<String, FireBaseStudentService>
-                    FireBaseStudentService responseData = jsonb.fromJson(responseBodyJson, FireBaseStudentService.class);
+                    // Convert the responseBodyJson to an LinkedHashMap<String, Student>
+                    Student responseData = jsonb.fromJson(responseBodyJson, Student.class);
                     responseData.setId(id);
                     return Optional.of(responseData);
                 } else {
-                    throw new RuntimeException(String.format("FireBaseStudentService with id of %s not found", id));
+                    throw new RuntimeException(String.format("Student with id of %s not found", id));
                 }
 
             }
@@ -131,9 +133,9 @@ public class FirebaseStudentServiceService implements StudentService{
     }
 
     @Override
-    public List<FireBaseStudentService> getAllFireBaseStudentServices() {
+    public List<Student> getAllStudents() {
         // Build the url path to object to get all data
-        jsonAllDataPath = String.format("%s/%s.json", firebaseRtdbBaseUrl, FireBaseStudentService.class.getSimpleName());
+        jsonAllDataPath = String.format("%s/%s.json", firebaseRtdbBaseUrl, Student.class.getSimpleName());
         // Create an GET Http Request to fetch all data
         var httpRequest = HttpRequest.newBuilder()
                 .uri(URI.create(jsonAllDataPath))
@@ -147,17 +149,17 @@ public class FirebaseStudentServiceService implements StudentService{
             if (httpResponse.statusCode() == 200) {
                 // Get the body of the Http Response
                 var responseBodyJson = httpResponse.body();
-                // Convert the responseBodyJson to an LinkedHashMap<String, FireBaseStudentService>
-                LinkedHashMap<String, FireBaseStudentService> responseData = jsonb.fromJson(responseBodyJson, new LinkedHashMap<String, FireBaseStudentService>() {
+                // Convert the responseBodyJson to an LinkedHashMap<String, Student>
+                LinkedHashMap<String, Student> responseData = jsonb.fromJson(responseBodyJson, new LinkedHashMap<String, Student>() {
                 }.getClass().getGenericSuperclass());
                 if (responseData != null) {
-                    // Convert the LinkedHashMap<String, FireBaseStudentService> to List<FireBaseStudentService>
+                    // Convert the LinkedHashMap<String, Student> to List<Student>
                     return responseData.entrySet()
                             .stream()
                             .map(item -> {
-                                var currentFireBaseStudentService = item.getValue();
-                                currentFireBaseStudentService.setId(item.getKey());
-                                return currentFireBaseStudentService;
+                                var currentStudent = item.getValue();
+                                currentStudent.setId(item.getKey());
+                                return currentStudent;
                             })
                             .toList();
                 }
@@ -170,18 +172,18 @@ public class FirebaseStudentServiceService implements StudentService{
     }
 
     /**
-     * Writing currentFireBaseStudentService data to Firebase Realtime Database using the REST API
+     * Writing currentStudent data to Firebase Realtime Database using the REST API
      *
      * @link <a href="https://firebase.google.com/docs/reference/rest/database">Firebase Realtime Database REST API</a>
      */
     @Override
-    public FireBaseStudentService updateFireBaseStudentService(FireBaseStudentService fireBaseStudentService) {
+    public Student updateStudent(Student student) {
         // Build the url path to object to update
         String jsonSingleDataPath = String.format("%s/%s/%s.json",
-                firebaseRtdbBaseUrl, FireBaseStudentService.class.getSimpleName(), fireBaseStudentService.getId());
+                firebaseRtdbBaseUrl, Student.class.getSimpleName(), student.getId());
 
         // Convert the Java object to a JSON string using JSONB
-        String requestBodyJson = jsonb.toJson(fireBaseStudentService);
+        String requestBodyJson = jsonb.toJson(student);
 
         // Create and Http Request to send an HTTP PUT request to write over existing data
         var httpRequest = HttpRequest.newBuilder()
@@ -201,7 +203,7 @@ public class FirebaseStudentServiceService implements StudentService{
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-        return fireBaseStudentService;
+        return student;
     }
 
     /**
@@ -210,10 +212,10 @@ public class FirebaseStudentServiceService implements StudentService{
      * @link <a href="https://firebase.google.com/docs/reference/rest/database">Firebase Realtime Database REST API</a>
      */
     @Override
-    public void deleteFireBaseStudentServiceById(String id) {
+    public void deleteStudentById(String id) {
         // Build the URL path of the Json object to delete
         String jsonSingleDataPath = String.format("%s/%s/%s.json",
-                firebaseRtdbBaseUrl, FireBaseStudentService.class.getSimpleName(), id);
+                firebaseRtdbBaseUrl, Student.class.getSimpleName(), id);
         // Create an DELETE Http Request
         var httpRequest = HttpRequest.newBuilder()
                 .uri(URI.create(jsonSingleDataPath))
