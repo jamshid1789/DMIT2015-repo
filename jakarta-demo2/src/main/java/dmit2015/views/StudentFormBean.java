@@ -1,8 +1,10 @@
 package dmit2015.views;
 
 
+import dmit2015.models.StudentInfo;
 import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.FacesContext;
+import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import org.omnifaces.cdi.ViewScoped;
 
@@ -13,62 +15,46 @@ import java.io.Serializable;
 @ViewScoped
 
 //whenever using viewscoped, you must add implements serializable
-public class StudentFormBean implements Serializable {
+public class StudentFormBean  implements Serializable {
 
     private int submissionCount;
-    private String fullName;
-    private String program;
-    private boolean fullTime;
-
-    //our get/set methods
-    //the submission count only has a getter. doesn't need a setter
     public int getSubmissionCount() {
         return submissionCount;
     }
 
-    public String getFullName() {
-        return fullName;
+
+    @Inject
+    private StudentListSession studentListSession;
+
+
+    private StudentInfo studentInfo = new StudentInfo();
+
+
+    public StudentInfo getStudentInfo() {
+        return studentInfo;
     }
 
-    public void setFullName(String fullName) {
-        this.fullName = fullName;
+    public void setStudentInfo(StudentInfo studentInfo) {
+        this.studentInfo = studentInfo;
     }
 
-    public String getProgram() {
-        return program;
-    }
-
-    public void setProgram(String program) {
-        this.program = program;
-    }
-
-    public boolean isFullTime() {
-        return fullTime;
-    }
-
-    public void setFullTime(boolean fullTime) {
-        this.fullTime = fullTime;
-    }
-
-    //methods
-    public void Submit() {
-        // increases increment by 1 each time submit is clicked
+    public void submit(){
         submissionCount ++;
 
-        //facemessage allows us to show custom output to the user through javabeans
+        studentListSession.add(studentInfo);
+
         FacesMessage message = new FacesMessage(
-                //different types of facemessage but we're gonna use info type. the %s gets replaced with the variables
-                FacesMessage.SEVERITY_INFO, "form submitted",
-                String.format("welcome %s to %s program (%s)", fullName, program, fullTime ? "fullTime" : "Part-time")
+                FacesMessage.SEVERITY_INFO, "From Submitted: " ,
+                String.format( "Welcome %s to %s program (%s)", studentInfo.getFullName(),studentInfo.getProgram(), studentInfo.isFullTime() ? "Full Time" : "Part Time" )
+
         );
 
-        FacesContext.getCurrentInstance().addMessage(null, message);
-        //resets the variables after submitting
-        fullName = null;
-        program = null;
-        fullTime = true;
+        FacesContext.getCurrentInstance().addMessage(null,message);
+
+        studentInfo =new StudentInfo();
+
+
 
     }
-
 
 }

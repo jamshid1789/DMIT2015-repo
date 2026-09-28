@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui">
+
+<h:head>
+    <meta charset="UTF-8"/>
+    <title>Create Event</title>
+</h:head>
+
+<h:body>
+
+    <h3>dmit2015-1261 Assignment 1 - jamshid</h3>
+
+    <h2>Create Campus Event</h2>
+
+    <h:form id="createEventForm">
+
+        <p:messages showSummary="false" showDetail="true"/>
+
+        <!-- the input fields. theyre all connected to a specific field in newEvent-->
+        <h:outputLabel for="eventName" value="Event mame: "/>
+        <p:inputText id="eventName" value="#{campusEventBean.newEvent.eventName}"/>
+
+        <h:outputLabel for="organizerName" value="Organizer Name:"/>
+        <p:inputText id="organizerName" value="#{campusEventBean.newEvent.organizerName}"/>
+
+        <h:outputLabel for="eventDate" value="Event date:"/>
+        <p:datePicker id="eventDate" value="#{campusEventBean.newEvent.eventDate}" pattern="yyyy-MM-dd"/>
+
+
+        <h:outputLabel for="capacity" value="Capacity: "/>
+        <p:inputNumber id="capacity" value="#{campusEventBean.newEvent.capacity}" decimalPlaces="0"/>
+
+        <br/>
+
+        <!-- the submmit button. creates the event, and refreshes the form to show blank form-->
+        <p:commandButton value="Submit" action="#{campusEventBean.createEvent}" update="@form"/>
+
+    </h:form>
+
+    <h:link outcome="view-events" value="view event records"/>
+
+</h:body>
+</html>
